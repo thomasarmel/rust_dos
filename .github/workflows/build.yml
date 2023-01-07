@@ -1,0 +1,38 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  qemu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: all
+          image: jgoerzen/qemu-dos:latest
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - name: Build
+        run: cargo build --release --verbose
+      - name: COM
+        run: |
+          mkdir -p dos_exec
+          cargo objcopy --release -- -O binary --binary-architecture=i386:x86 dos_exec/rust_dos.com
+      - name: Run tests
+        run: cargo test --verbose
