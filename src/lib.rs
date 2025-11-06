@@ -13,6 +13,7 @@ use crate::dos::cooperative_multitasking::TASKING;
 #[link_section = ".startup"]
 #[no_mangle]
 fn _start() -> ! {
+    #[allow(static_mut_refs)]
     unsafe {
         GLOBAL_ALLOCATOR.init();
         TASKING.init(); // Relies on the allocator
